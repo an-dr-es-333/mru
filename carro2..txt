@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador M.R.U. - Tema Oscuro/Claro</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --input-bg: #f0f0f0;
+      --button-bg: #ddd;
+      --button-hover: #bbb;
+      --border-color: #ccc;
+      --highlight: #007acc;
+    }
+
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f5f5f5;
+      --input-bg: #1e1e1e;
+      --button-bg: #3a3a3a;
+      --button-hover: #555;
+      --border-color: #333;
+      --highlight: #00e676;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1 {
+      color: var(--text-color);
+      text-align: center;
+    }
+
+    label, select, input, button {
+      display: block;
+      margin: 10px 0;
+    }
+
+    select, input {
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 5px;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: var(--button-bg);
+      color: var(--text-color);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: var(--button-hover);
+    }
+
+    #resultado {
+      margin-top: 20px;
+      font-weight: bold;
+      color: var(--highlight);
+    }
+
+    #simulador {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 200px;
+      margin-top: 40px;
+      border: 2px solid var(--border-color);
+      overflow: hidden;
+      background-image: url('https://static.vecteezy.com/system/resources/previews/025/469/556/non_2x/cartoon-transport-asphalt-road-for-banner-besid-of-road-with-wheat-field-gold-color-mountain-and-blue-sky-with-white-clouds-copy-space-flat-vector.jpg'); 
+      background-repeat: repeat-x;
+      background-size: cover;
+      background-position: 0 0;
+    }
+
+    #carro {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      width: 100px;
+      height: auto;
+      transition: none;
+    }
+
+    #tema-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .imagen-centrada {
+      text-align: center;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="tema-btn" onclick="toggleTema()">🌙 Cambiar modo</button>
+
+  <h1>Simulador de Movimiento Rectilíneo Uniforme (M.R.U.)</h1>
+
+  <p style="text-align:center">
+    Se define el movimiento en el cual un objeto se desplaza en línea recta, en una sola dirección,
+    recorriendo distancias iguales en el mismo intervalo de tiempo, manteniendo en todo su movimiento
+    una velocidad constante y sin aceleración.
+  </p>
+
+  <div class="imagen-centrada">
+    <img src="mru.jpeg" style="width:300px;height:200px;">
+  </div>
+
+  <label for="opcion">¿Qué deseas calcular?</label>
+  <select id="opcion" onchange="mostrarCampos()">
+    <option value="">Seleccione una opción</option>
+    <option value="velocidad">Velocidad</option>
+    <option value="distancia">Distancia</option>
+    <option value="tiempo">Tiempo</option>
+  </select>
+
+  <div id="inputs"></div>
+
+  <button onclick="calcular()">Calcular</button>
+
+  <div id="resultado"></div>
+
+  <div id="simulador">
+    <img id="carro" src="https://i.imgur.com/HWBgYFf.png" alt="Carro">
+  </div>
+
+  <!-- Audio del carro -->
+  <audio id="sonidoCarro" src="sonidocarro.mp3" preload="auto"></audio>
+
+  <script>
+    function mostrarCampos() {
+      const opcion = document.getElementById("opcion").value;
+      const inputsDiv = document.getElementById("inputs");
+      inputsDiv.innerHTML = "";
+
+      if (opcion === "velocidad") {
+        inputsDiv.innerHTML = `
+          <label for="distancia">Distancia (m):</label>
+          <input type="number" id="distancia" step="any">
+          <label for="tiempo">Tiempo (s):</label>
+          <input type="number" id="tiempo" step="any">
+        `;
+      } else if (opcion === "distancia") {
+        inputsDiv.innerHTML = `
+          <label for="velocidad">Velocidad (m/s):</label>
+          <input type="number" id="velocidad" step="any">
+          <label for="tiempo">Tiempo (s):</label>
+          <input type="number" id="tiempo" step="any">
+        `;
+      } else if (opcion === "tiempo") {
+        inputsDiv.innerHTML = `
+          <label for="distancia">Distancia (m):</label>
+          <input type="number" id="distancia" step="any">
+          <label for="velocidad">Velocidad (m/s):</label>
+          <input type="number" id="velocidad" step="any">
+        `;
+      }
+    }
+
+    function calcular() {
+      const opcion = document.getElementById("opcion").value;
+      let resultado = "";
+
+      const distancia = parseFloat(document.getElementById("distancia")?.value);
+      const tiempo = parseFloat(document.getElementById("tiempo")?.value);
+      const velocidad = parseFloat(document.getElementById("velocidad")?.value);
+
+      let d, t, v;
+
+      if (opcion === "velocidad") {
+        if (!isNaN(distancia) && !isNaN(tiempo) && tiempo !== 0) {
+          v = distancia / tiempo;
+          d = distancia;
+          t = tiempo;
+          resultado = `La velocidad es ${v.toFixed(2)} m/s`;
+        } else {
+          resultado = "Ingresa valores válidos para distancia y tiempo (tiempo ≠ 0).";
+        }
+      } else if (opcion === "distancia") {
+        if (!isNaN(velocidad) && !isNaN(tiempo)) {
+          d = velocidad * tiempo;
+          v = velocidad;
+          t = tiempo;
+          resultado = `La distancia es ${d.toFixed(2)} metros`;
+        } else {
+          resultado = "Ingresa valores válidos para velocidad y tiempo.";
+        }
+      } else if (opcion === "tiempo") {
+        if (!isNaN(distancia) && !isNaN(velocidad) && velocidad !== 0) {
+          t = distancia / velocidad;
+          d = distancia;
+          v = velocidad;
+          resultado = `El tiempo es ${t.toFixed(2)} segundos`;
+        } else {
+          resultado = "Ingresa valores válidos para distancia y velocidad (velocidad ≠ 0).";
+        }
+      }
+
+      document.getElementById("resultado").innerText = resultado;
+
+      if (!isNaN(d) && !isNaN(t) && t > 0) {
+        simularMovimiento(d, t);
+      }
+    }
+
+    function simularMovimiento(distancia, tiempo) {
+      const carro = document.getElementById("carro");
+      const contenedor = document.getElementById("simulador");
+      const sonido = document.getElementById("sonidoCarro");
+
+      const maxDistanciaPx = 700;
+      const escala = Math.min(maxDistanciaPx / distancia, 1);
+      const distanciaPx = distancia * escala;
+
+      carro.style.transition = "none";
+      carro.style.left = "0px";
+      contenedor.style.backgroundPositionX = "0px";
+
+      void carro.offsetWidth;
+
+      carro.style.transition = `left ${tiempo}s linear`;
+      carro.style.left = `${distanciaPx}px`;
+
+      // Inicia sonido
+      sonido.currentTime = 0;
+      sonido.play();
+
+      let start = null;
+      const fondoVelocidad = distanciaPx / tiempo;
+
+      function animarFondo(timestamp) {
+        if (!start) start = timestamp;
+        const elapsed = (timestamp - start) / 1000;
+        const desplazamiento = Math.min(elapsed * fondoVelocidad, distanciaPx);
+        contenedor.style.backgroundPositionX = `-${desplazamiento}px`;
+
+        if (elapsed < tiempo) {
+          requestAnimationFrame(animarFondo);
+        } else {
+          // Detiene sonido
+          sonido.pause();
+          sonido.currentTime = 0;
+        }
+      }
+
+      requestAnimationFrame(animarFondo);
+    }
+
+    function toggleTema() {
+      document.body.classList.toggle("dark");
+      const btn = document.getElementById("tema-btn");
+      const darkMode = document.body.classList.contains("dark");
+      btn.textContent = darkMode ? "☀️ Cambiar modo" : "🌙 Cambiar modo";
+    }
+  </script>
+
+</body>
+</html>
